@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBX Premium free otp Panel</title>
+    <title>GBX Premium Free OTP Panel</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
@@ -13,7 +13,6 @@
             -webkit-touch-callout: none;
         }
         body {
-            /* Dark mysterious spiderweb themed dark gradient background */
             background: #05050a;
             background-image: 
                 radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
@@ -93,7 +92,6 @@
         .main-heading { font-size: 24px; font-weight: 800; line-height: 1.25; margin-bottom: 22px; color: #f8fafc; }
         .main-heading span { background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Premium Compact Cards */
         .panels-grid { display: flex; flex-direction: column; gap: 14px; }
         .panel-card {
             background: linear-gradient(135deg, rgba(20, 20, 35, 0.6) 0%, rgba(10, 10, 20, 0.8) 100%);
@@ -131,15 +129,15 @@
 <body>
 
     <div id="lockScreen">
-        <div class="lock-icon">🔒</div>
-        <div class="lock-title">Telegram Required</div>
-        <div class="lock-desc">Yeh secure application sirf official GBX Free Pannel bot ke madhyam se hi chal sakti hai.</div>
-        <a href="https://t.me/gbx_free_otp_bot" class="bot-btn">Open Telegram Bot ➔</a>
+        <div class="lock-icon" id="lockIcon">🔒</div>
+        <div class="lock-title" id="lockTitle">Telegram Required</div>
+        <div class="lock-desc" id="lockDesc">Yeh secure application sirf official GBX Free OTP Panel bot ke madhyam se hi chal sakti hai.</div>
+        <a href="https://t.me/gbx_free_otp_bot" id="botLinkBtn" class="bot-btn">Open Telegram Bot ➔</a>
     </div>
 
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loader-text">Loading Secure Environment...</div>
+        <div class="loader-text">Verifying Channels & Loading...</div>
     </div>
 
     <div class="container" id="mainContent">
@@ -163,7 +161,7 @@
 
         <div class="section-title">Select Infrastructure</div>
         <div class="main-heading">
-            GBX free Premium Core.<br><span>Next-Gen Power.</span>
+            GBX Free Premium Core.<br><span>Next-Gen Power.</span>
         </div>
 
         <div class="panels-grid">
@@ -242,7 +240,6 @@
     </div>
 
     <script>
-        // 4 Premium Links Configured Here
         function openPanel(id) {
             const links = {
                 1: "http://profex.site.je/?s=aHR0cHM6Ly9tb3RrYS01YjIxZC1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218fHxI",
@@ -254,7 +251,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const isTelegram = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+            const tg = window.Telegram && window.Telegram.WebApp;
+            const isTelegram = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 
             if (!isTelegram) {
                 document.getElementById('lockScreen').style.display = 'flex';
@@ -262,30 +260,48 @@
                 return;
             }
 
-            let userName = "User";
-            let userPhoto = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+            let userId = tg.initDataUnsafe.user.id;
+            let userName = tg.initDataUnsafe.user.first_name || "User";
+            let userPhoto = tg.initDataUnsafe.user.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
 
-            let tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-            if (tgUser.first_name) { userName = tgUser.first_name; }
-            if (tgUser.photo_url) { userPhoto = tgUser.photo_url; }
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
+            tg.ready();
+            tg.expand();
 
             document.getElementById('userAvatar').src = userPhoto;
-
             const hour = new Date().getHours();
             let greeting = hour < 12 ? "Good morning" : (hour < 17 ? "Good afternoon" : "Good evening");
             document.getElementById('greetingText').innerHTML = `${greeting}, ${userName}! 👋`;
 
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => {
+            // Server-side check via fetch to verify user membership in bot backend
+            fetch(`https://YOUR_RAILWAY_APP_URL/api/check_membership?user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout(() => {
+                        const loader = document.getElementById('loader');
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                            
+                            if (data.joined) {
+                                document.getElementById('mainContent').style.display = 'flex';
+                                confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+                            } else {
+                                // Agar user ne channel leave kiya hai, toh lock screen dikhao jo bot par wapas bhejegi
+                                document.getElementById('lockIcon').innerHTML = "⚠️";
+                                document.getElementById('lockTitle').innerHTML = "Channel Leave Detected!";
+                                document.getElementById('lockDesc').innerHTML = "Aapne zaroori channel leave kar diya hai. Panel open karne ke liye dobara verify karein.";
+                                document.getElementById('botLinkBtn').innerHTML = "🔄 Verify & Restart Bot ➔";
+                                document.getElementById('lockScreen').style.display = 'flex';
+                            }
+                        }, 400);
+                    }, 1000);
+                })
+                .catch(err => {
+                    // Agar network issue ho toh bypass karke main content dikha do
+                    const loader = document.getElementById('loader');
                     loader.style.display = 'none';
                     document.getElementById('mainContent').style.display = 'flex';
-                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-                }, 400);
-            }, 1500);
+                });
         });
     </script>
 </body>
