@@ -27,19 +27,19 @@
             display: none; flex-direction: column; align-items: center;
             justify-content: center; text-align: center; padding: 20px;
             width: 100%; height: 100vh; position: fixed; top: 0; left: 0;
-            background-color: #05050a; z-index: 99999;
+            background-color: #05050ab8; backdrop-filter: blur(15px); z-index: 99999;
         }
-        .lock-icon { font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .lock-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #f8fafc; letter-spacing: 0.5px; }
-        .lock-desc { font-size: 14px; color: #94a3b8; margin-bottom: 30px; max-width: 300px; line-height: 1.5; }
+        .lock-icon { font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.4)); }
+        .lock-title { font-size: 22px; font-weight: 800; margin-bottom: 10px; color: #f87171; letter-spacing: 0.5px; }
+        .lock-desc { font-size: 13px; color: #94a3b8; margin-bottom: 25px; max-width: 320px; line-height: 1.5; }
         .bot-btn {
-            background: linear-gradient(135deg, #ffffff, #cbd5e1); color: #05050a; padding: 14px 28px;
+            background: linear-gradient(135deg, #ef4444, #dc2626); color: #ffffff; padding: 14px 26px;
             border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none;
             display: inline-flex; align-items: center; gap: 10px;
-            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 25px rgba(239, 68, 68, 0.4);
             transition: all 0.3s ease;
         }
-        .bot-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(255, 255, 255, 0.25); }
+        .bot-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(239, 68, 68, 0.6); }
 
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -49,12 +49,12 @@
         }
         .spinner {
             width: 50px; height: 50px; border: 3px solid rgba(255, 255, 255, 0.05);
-            border-top: 3px solid #ffffff; border-radius: 50%;
+            border-top: 3px solid #38bdf8; border-radius: 50%;
             animation: spin 0.8s linear infinite; margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loader-text { color: #cbd5e1; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+        .loader-text { color: #38bdf8; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
 
         .container { width: 100%; max-width: 440px; padding: 15px; display: none; flex-direction: column; }
         
@@ -128,16 +128,18 @@
 </head>
 <body>
 
+    <!-- Lock Screen for Leave Detection -->
     <div id="lockScreen">
-        <div class="lock-icon" id="lockIcon">🔒</div>
-        <div class="lock-title" id="lockTitle">Telegram Required</div>
-        <div class="lock-desc" id="lockDesc">Yeh secure application sirf official GBX Free OTP Panel bot ke madhyam se hi chal sakti hai.</div>
-        <a href="https://t.me/gbx_free_otp_bot" id="botLinkBtn" class="bot-btn">Open Telegram Bot ➔</a>
+        <div class="lock-icon" id="lockIcon">⚠️</div>
+        <div class="lock-title" id="lockTitle">Channel Leave Detected!</div>
+        <div class="lock-desc" id="lockDesc">Aapne hamara zaroori channel leave kar diya hai. Panel use karne ke liye dobara join karke /start dabayein.</div>
+        <a href="https://t.me/gbx_free_otp_bot?start=verify" id="botLinkBtn" class="bot-btn">🔄 /start Bot & Verify</a>
     </div>
 
+    <!-- 2-Second Verification Loader -->
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loader-text">Verifying Channels & Loading...</div>
+        <div class="loader-text">🔍 Verifying Channels...</div>
     </div>
 
     <div class="container" id="mainContent">
@@ -165,7 +167,6 @@
         </div>
 
         <div class="panels-grid">
-            <!-- Panel 1 -->
             <div class="panel-card" onclick="openPanel(1)">
                 <div class="panel-icon-box" style="background: linear-gradient(135deg, #334155, #0f172a); border: 1px solid rgba(255,255,255,0.1);">⚡</div>
                 <div class="card-content">
@@ -182,7 +183,6 @@
                 <div class="arrow-icon">➔</div>
             </div>
 
-            <!-- Panel 2 -->
             <div class="panel-card" onclick="openPanel(2)">
                 <div class="panel-icon-box" style="background: linear-gradient(135deg, #1e293b, #09090b); border: 1px solid rgba(255,255,255,0.1);">💎</div>
                 <div class="card-content">
@@ -199,7 +199,6 @@
                 <div class="arrow-icon">➔</div>
             </div>
 
-            <!-- Panel 3 -->
             <div class="panel-card" onclick="openPanel(3)">
                 <div class="panel-icon-box" style="background: linear-gradient(135deg, #27272a, #09090b); border: 1px solid rgba(255,255,255,0.1);">🛡️</div>
                 <div class="card-content">
@@ -216,7 +215,6 @@
                 <div class="arrow-icon">➔</div>
             </div>
 
-            <!-- Panel 4 -->
             <div class="panel-card" onclick="openPanel(4)">
                 <div class="panel-icon-box" style="background: linear-gradient(135deg, #18181b, #020617); border: 1px solid rgba(255,255,255,0.1);">👑</div>
                 <div class="card-content">
@@ -272,11 +270,11 @@
             let greeting = hour < 12 ? "Good morning" : (hour < 17 ? "Good afternoon" : "Good evening");
             document.getElementById('greetingText').innerHTML = `${greeting}, ${userName}! 👋`;
 
-            // Server-side check via fetch to verify user membership in bot backend
-            fetch(`https://YOUR_RAILWAY_APP_URL/api/check_membership?user_id=${userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout(() => {
+            // 2-Second Verification Animation Delay then API Check
+            setTimeout(() => {
+                fetch(`https://YOUR_RAILWAY_APP_URL/api/check_membership?user_id=${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
                         const loader = document.getElementById('loader');
                         loader.style.opacity = '0';
                         setTimeout(() => {
@@ -286,22 +284,17 @@
                                 document.getElementById('mainContent').style.display = 'flex';
                                 confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
                             } else {
-                                // Agar user ne channel leave kiya hai, toh lock screen dikhao jo bot par wapas bhejegi
-                                document.getElementById('lockIcon').innerHTML = "⚠️";
-                                document.getElementById('lockTitle').innerHTML = "Channel Leave Detected!";
-                                document.getElementById('lockDesc').innerHTML = "Aapne zaroori channel leave kar diya hai. Panel open karne ke liye dobara verify karein.";
-                                document.getElementById('botLinkBtn').innerHTML = "🔄 Verify & Restart Bot ➔";
+                                // Agar user ne channel leave kiya hai, toh lock screen dikhao jisme /start ka link ho
                                 document.getElementById('lockScreen').style.display = 'flex';
                             }
                         }, 400);
-                    }, 1000);
-                })
-                .catch(err => {
-                    // Agar network issue ho toh bypass karke main content dikha do
-                    const loader = document.getElementById('loader');
-                    loader.style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'flex';
-                });
+                    })
+                    .catch(err => {
+                        const loader = document.getElementById('loader');
+                        loader.style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'flex';
+                    });
+            }, 2000); // Exact 2 seconds verification loader animation
         });
     </script>
 </body>
