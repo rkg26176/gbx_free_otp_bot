@@ -4,7 +4,7 @@ import threading
 import time
 import requests
 import telebot
-from flask import Flask
+from flask import Flask, request, jsonify
 from telebot.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -18,7 +18,6 @@ BOT_TOKEN = os.environ.get(
 )
 ADMIN_CHAT_ID = int(os.environ.get("ADMIN_CHAT_ID", 8053042225))
 
-# Naya GitHub Mini App Link updated here
 MINI_APP_URL = "https://rkg26176.github.io/gbx_free_otp_bot/"
 
 app = Flask(__name__)
@@ -126,6 +125,22 @@ CHANNELS = {
 @app.route("/")
 def home():
   return "⚡ GBX Panel Bot is Running Live!"
+
+
+# API Endpoint for WebApp to check user membership live
+@app.route("/api/check_membership", methods=["GET"])
+def api_check_membership():
+  user_id = request.args.get("user_id")
+  if not user_id:
+    return jsonify({"joined": False})
+  
+  try:
+    uid = int(user_id)
+    status_map = get_user_status_map(uid)
+    is_joined = all(status_map.values())
+    return jsonify({"joined": is_joined})
+  except Exception as e:
+    return jsonify({"joined": False})
 
 
 def get_user_status_map(user_id):
