@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GBX Premium VIP Panel</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-touch-callout: none;
+        }
+        body {
+            /* Dark mysterious spiderweb themed dark gradient background */
+            background: #05050a;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 40%),
+                linear-gradient(135deg, #030307 0%, #0d0b18 50%, #05050a 100%);
+            color: #ffffff;
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start; overflow-x: hidden;
+            padding-bottom: 30px;
+        }
+        #lockScreen {
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center; padding: 20px;
+            width: 100%; height: 100vh; position: fixed; top: 0; left: 0;
+            background-color: #05050a; z-index: 99999;
+        }
+        .lock-icon { font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        .lock-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #f8fafc; letter-spacing: 0.5px; }
+        .lock-desc { font-size: 14px; color: #94a3b8; margin-bottom: 30px; max-width: 300px; line-height: 1.5; }
+        .bot-btn {
+            background: linear-gradient(135deg, #ffffff, #cbd5e1); color: #05050a; padding: 14px 28px;
+            border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        .bot-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(255, 255, 255, 0.25); }
+
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #05050a; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(255, 255, 255, 0.05);
+            border-top: 3px solid #ffffff; border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { color: #cbd5e1; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+
+        .container { width: 100%; max-width: 440px; padding: 15px; display: none; flex-direction: column; }
+        
+        .header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            margin-bottom: 20px; background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 15px; border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .greeting-box h3 { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+        .greeting-box p { font-size: 11px; color: #94a3b8; margin-top: 2px; letter-spacing: 0.5px; }
+        
+        .live-badge {
+            background-color: rgba(255, 255, 255, 0.05); color: #f8fafc;
+            padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.5px;
+        }
+        .live-dot { width: 6px; height: 6px; background-color: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px; font-size: 12px; color: #cbd5e1; font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+        .stats-right { color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+
+        .section-title { font-size: 10px; letter-spacing: 2px; color: #64748b; margin-bottom: 12px; text-transform: uppercase; font-weight: 800; }
+        .main-heading { font-size: 24px; font-weight: 800; line-height: 1.25; margin-bottom: 22px; color: #f8fafc; }
+        .main-heading span { background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Premium Compact Cards */
+        .panels-grid { display: flex; flex-direction: column; gap: 14px; }
+        .panel-card {
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.6) 0%, rgba(10, 10, 20, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px; padding: 14px 16px; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; display: flex; align-items: center; gap: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .panel-card:hover { 
+            transform: translateY(-3px); 
+            border-color: rgba(255, 255, 255, 0.25); 
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.08); 
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.7) 0%, rgba(15, 15, 30, 0.9) 100%);
+        }
+        
+        .panel-icon-box { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(255,255,255,0.2); }
+        
+        .card-content { flex-grow: 1; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #f8fafc; letter-spacing: 0.3px; }
+        .tag { font-size: 9px; font-weight: 700; color: #ffffff; background: rgba(255, 255, 255, 0.08); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .card-desc { font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 8px; font-weight: 400; }
+        
+        .badges-container { display: flex; gap: 6px; flex-wrap: wrap; }
+        .mini-badge { background: rgba(0, 0, 0, 0.4); padding: 2px 7px; border-radius: 5px; font-size: 9px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        .arrow-icon { width: 30px; height: 30px; background: rgba(255, 255, 255, 0.04); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; color: #94a3b8; border: 1px solid rgba(255,255,255,0.06); transition: all 0.3s ease; }
+        .panel-card:hover .arrow-icon { background: #ffffff; color: #05050a; transform: translateX(3px); }
+
+        .footer { text-align: center; padding: 25px 0 10px; font-size: 10px; color: #64748b; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div id="lockScreen">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">Telegram Required</div>
+        <div class="lock-desc">Yeh secure application sirf official GBX VIP Panel bot ke madhyam se hi chal sakti hai.</div>
+        <a href="https://t.me/gbx_panel_2_bot" class="bot-btn">Open Telegram Bot ➔</a>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading Secure Environment...</div>
+    </div>
+
+    <div class="container" id="mainContent">
+        <div class="header">
+            <div class="user-info">
+                <img id="userAvatar" src="https://via.placeholder.com/150" alt="Avatar" class="avatar">
+                <div class="greeting-box">
+                    <h3 id="greetingText">Welcome, User! 👋</h3>
+                    <p>GBX VIP SECURE SYSTEM</p>
+                </div>
+            </div>
+            <div class="live-badge">
+                <div class="live-dot"></div> ACTIVE VIP
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <span>🛡️ Security Status: 100% Encrypted</span>
+            <span class="stats-right">⚡ 4 Servers Online</span>
+        </div>
+
+        <div class="section-title">Select Infrastructure</div>
+        <div class="main-heading">
+            GBX Premium Core.<br><span>Next-Gen Power.</span>
+        </div>
+
+        <div class="panels-grid">
+            <!-- Panel 1 -->
+            <div class="panel-card" onclick="openPanel(1)">
+                <div class="panel-icon-box" style="background: linear-gradient(135deg, #334155, #0f172a); border: 1px solid rgba(255,255,255,0.1);">⚡</div>
+                <div class="card-content">
+                    <div class="card-top">
+                        <div class="card-title">GBX Premium Server 1</div>
+                        <span class="tag">ULTRA FAST</span>
+                    </div>
+                    <div class="card-desc">High-speed automated execution tool with instant synchronization.</div>
+                    <div class="badges-container">
+                        <span class="mini-badge" style="color: #38bdf8;">🔥 Speed</span>
+                        <span class="mini-badge" style="color: #4ade80;">🛡️ Secure</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">➔</div>
+            </div>
+
+            <!-- Panel 2 -->
+            <div class="panel-card" onclick="openPanel(2)">
+                <div class="panel-icon-box" style="background: linear-gradient(135deg, #1e293b, #09090b); border: 1px solid rgba(255,255,255,0.1);">💎</div>
+                <div class="card-content">
+                    <div class="card-top">
+                        <div class="card-title">GBX Premium Server 2</div>
+                        <span class="tag">VIP ELITE</span>
+                    </div>
+                    <div class="card-desc">Exclusive dedicated resources built for high-tier performance operations.</div>
+                    <div class="badges-container">
+                        <span class="mini-badge" style="color: #c084fc;">💎 Exclusive</span>
+                        <span class="mini-badge" style="color: #f472b6;">⚡ Instant</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">➔</div>
+            </div>
+
+            <!-- Panel 3 -->
+            <div class="panel-card" onclick="openPanel(3)">
+                <div class="panel-icon-box" style="background: linear-gradient(135deg, #27272a, #09090b); border: 1px solid rgba(255,255,255,0.1);">🛡️</div>
+                <div class="card-content">
+                    <div class="card-top">
+                        <div class="card-title">GBX Premium Server 3</div>
+                        <span class="tag">PRO NODE</span>
+                    </div>
+                    <div class="card-desc">Advanced enterprise-grade server instance with high stability.</div>
+                    <div class="badges-container">
+                        <span class="mini-badge" style="color: #34d399;">🟢 Online</span>
+                        <span class="mini-badge" style="color: #38bdf8;">⚡ Sync</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">➔</div>
+            </div>
+
+            <!-- Panel 4 -->
+            <div class="panel-card" onclick="openPanel(4)">
+                <div class="panel-icon-box" style="background: linear-gradient(135deg, #18181b, #020617); border: 1px solid rgba(255,255,255,0.1);">👑</div>
+                <div class="card-content">
+                    <div class="card-top">
+                        <div class="card-title">GBX Premium Server 4</div>
+                        <span class="tag">MAX POWER</span>
+                    </div>
+                    <div class="card-desc">Ultimate elite utility server optimized for multi-operations.</div>
+                    <div class="badges-container">
+                        <span class="mini-badge" style="color: #facc15;">👑 Master</span>
+                        <span class="mini-badge" style="color: #4ade80;">⚡ Optimized</span>
+                    </div>
+                </div>
+                <div class="arrow-icon">➔</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            GBX Premium Secure Environment • 2026
+        </div>
+    </div>
+
+    <script>
+        // 4 Premium Links Configured Here
+        function openPanel(id) {
+            const links = {
+                1: "http://profex.site.je/?s=aHR0cHM6Ly9yYWprdW1hci01YWY5ZC1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218fHxW",
+                2: "http://profex.site.je/?s=aHR0cHM6Ly9oZGpkamRqLWE3M2YyLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEg=",
+                3: "https://profex.site.je/?s=aHR0cHM6Ly9yYWphYmhheWEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8SA==",
+                4: "https://profex.site.je/?s=aHR0cHM6Ly9ydG9tdW1iYWktYmM5MTktZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8U2ho"
+            };
+            window.location.href = links[id];
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isTelegram = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+
+            if (!isTelegram) {
+                document.getElementById('lockScreen').style.display = 'flex';
+                document.getElementById('loader').style.display = 'none';
+                return;
+            }
+
+            let userName = "User";
+            let userPhoto = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+
+            let tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+            if (tgUser.first_name) { userName = tgUser.first_name; }
+            if (tgUser.photo_url) { userPhoto = tgUser.photo_url; }
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+
+            document.getElementById('userAvatar').src = userPhoto;
+
+            const hour = new Date().getHours();
+            let greeting = hour < 12 ? "Good morning" : (hour < 17 ? "Good afternoon" : "Good evening");
+            document.getElementById('greetingText').innerHTML = `${greeting}, ${userName}! 👋`;
+
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'flex';
+                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+                }, 400);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
