@@ -127,7 +127,7 @@ def home():
   return "⚡ GBX Panel Bot is Running Live!"
 
 
-# API Endpoint for WebApp to check user membership live
+# API Endpoint for WebApp 2-sec verification animation check
 @app.route("/api/check_membership", methods=["GET"])
 def api_check_membership():
   user_id = request.args.get("user_id")
@@ -161,8 +161,7 @@ def get_user_status_map(user_id):
 def show_dynamic_force_join(chat_id, user_name, status_map, message_id=None):
   text = (
       f"⚠️ **ACCESS DENIED, {user_name} !**\n\n"
-      "🔒 Bot ko use karne ke liye aapko niche diye gaye sabhi official channels & chat group ko join karna zaroori hai.\n\n"
-      "👇 **Sabhi par click karke join karein:**"
+      "🔒 Aapne channels leave kar diye hain. Bot ko dobara use karne ke liye sabhi channels join karke niche button dabayein:"
   )
   markup = InlineKeyboardMarkup(row_width=1)
   for ch_id, ch_info in CHANNELS.items():
