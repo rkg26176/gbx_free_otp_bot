@@ -18,7 +18,8 @@ BOT_TOKEN = os.environ.get(
 )
 ADMIN_CHAT_ID = int(os.environ.get("ADMIN_CHAT_ID", 8053042225))
 
-MINI_APP_URL = "https://rkg26176.github.io/gbx_panel_2_bot/"
+# Naya GitHub Mini App Link updated here
+MINI_APP_URL = "https://rkg26176.github.io/gbx_free_otp_bot/"
 
 app = Flask(__name__)
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode=None)
@@ -174,13 +175,13 @@ def show_main_menu(chat_id, user_name):
   text = (
       f"👑 **WELCOME TO GBX PANEL, {user_name} !**\n\n"
       "✨ Aapka Web Panel fully **UNLOCKED** hai!\n"
-      "🚀 Yahan aapko **Total 5 VIP Panels** ka direct access milta hai.\n\n"
+      "🚀 Yahan aapko direct access milta hai.\n\n"
       "👇 Niche diye gaye button par click karke apna panel open karein:"
   )
   markup = InlineKeyboardMarkup(row_width=1)
   markup.add(
       InlineKeyboardButton(
-          text="🌐 OPEN WEB MINI APP PANEL (5 PANELS)",
+          text="🌐 OPEN WEB MINI APP PANEL",
           web_app=WebAppInfo(url=MINI_APP_URL),
       )
   )
